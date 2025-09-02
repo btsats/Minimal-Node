@@ -1,0 +1,40 @@
+
+---
+
+## 4) `csv-summarizer-py` — Quick Stats for CSV (No deps)
+
+**Files (3):** `summarize.py`, `sample.csv`, `README.md`
+
+```python
+# summarize.py
+#!/usr/bin/env python3
+"""
+Compute quick stats for numeric columns in a CSV.
+Usage:
+  python summarize.py data.csv
+Outputs count, min, max, mean for each numeric column.
+"""
+import csv, sys, statistics
+
+def try_float(x):
+    try: return float(x)
+    except: return None
+
+def summarize(path):
+    with open(path, newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    if not rows:
+        print("Empty CSV"); return
+    cols = rows[0].keys()
+    for col in cols:
+        vals = [try_float(r[col]) for r in rows]
+        nums = [v for v in vals if v is not None]
+        if not nums:
+            print(f"{col}: (non-numeric or empty)")
+            continue
+        print(f"{col}: count={len(nums)} min={min(nums)} max={max(nums)} mean={statistics.fmean(nums):.4f}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print(__doc__); sys.exit(1)
+    summarize(sys.argv[1])
